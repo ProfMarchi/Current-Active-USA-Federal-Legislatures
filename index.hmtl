@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current, Active USA Federal Legislators</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #003366;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 10px;
+        }
+        
+        .states-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .state-button {
+            background-color: #e7f1ff;
+            border: 1px solid #99c2ff;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-grow: 1;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .state-button:hover {
+            background-color: #cce0ff;
+        }
+        
+        .dropdown-content {
+            display: none;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .chamber-option {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        
+        .chamber-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .legislators-list {
+            display: none;
+            padding: 0;
+            margin: 0;
+            list-style-type: none;
+        }
+        
+        .legislator-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        
+        .legislator-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .legislator-info {
+            display: none;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 20px;
+            margin-top: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .info-title {
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 5px;
+        }
+        
+        .info-row {
+            margin-bottom: 10px;
+        }
+        
+        .active {
+            display: block;
+        }
+        
+        .selected {
+            background-color: #cce0ff;
+        }
+
+        .wiki-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        .wiki-link:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .states-container {
+                flex-direction: column;
+            }
+            
+            .state-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Current, Active USA Federal Legislators</h1>
+    
+    <div class="states-container" id="statesContainer">
+        <div class="loading">Loading states...</div>
+    </div>
+
+    <script>
+        // This would be populated with actual data in a real implementation
+        const legislatorsData = {
+            states: [
+                { name: "Alabama", code: "AL" },
+                { name: "Alaska", code: "AK" },
+                { name: "Arizona", code: "AZ" },
+                { name: "Arkansas", code: "AR" },
+                { name: "California", code: "CA" },
+                { name: "Colorado", code: "CO" },
+                { name: "Connecticut", code: "CT" },
+                { name: "Delaware", code: "DE" },
+                { name: "Florida", code: "FL" },
+                { name: "Georgia", code: "GA" },
+                { name: "Hawaii", code: "HI" },
+                { name: "Idaho", code: "ID" },
+                { name: "Illinois", code: "IL" },
+                { name: "Indiana", code: "IN" },
+                { name: "Iowa", code: "IA" },
+                { name: "Kansas", code: "KS" },
+                { name: "Kentucky", code: "KY" },
+                { name: "Louisiana", code: "LA" },
+                { name: "Maine", code: "ME" },
+                { name: "Maryland", code: "MD" },
+                { name: "Massachusetts", code: "MA" },
+                { name: "Michigan", code: "MI" },
+                { name: "Minnesota", code: "MN" },
+                { name: "Mississippi", code: "MS" },
+                { name: "Missouri", code: "MO" },
+                { name: "Montana", code: "MT" },
+                { name: "Nebraska", code: "NE" },
+                { name: "Nevada", code: "NV" },
+                { name: "New Hampshire", code: "NH" },
+                { name: "New Jersey", code: "NJ" },
+                { name: "New Mexico", code: "NM" },
+                { name: "New York", code: "NY" },
+                { name: "North Carolina", code: "NC" },
+                { name: "North Dakota", code: "ND" },
+                { name: "Ohio", code: "OH" },
+                { name: "Oklahoma", code: "OK" },
+                { name: "Oregon", code: "OR" },
+                { name: "Pennsylvania", code: "PA" },
+                { name: "Rhode Island", code: "RI" },
+                { name: "South Carolina", code: "SC" },
+                { name: "South Dakota", code: "SD" },
+                { name: "Tennessee", code: "TN" },
+                { name: "Texas", code: "TX" },
+                { name: "Utah", code: "UT" },
+                { name: "Vermont", code: "VT" },
+                { name: "Virginia", code: "VA" },
+                { name: "Washington", code: "WA" },
+                { name: "West Virginia", code: "WV" },
+                { name: "Wisconsin", code: "WI" },
+                { name: "Wyoming", code: "WY" },
+                { name: "American Samoa", code: "AS" },
+                { name: "District of Columbia", code: "DC" },
+                { name: "Guam", code: "GU" },
+                { name: "Northern Mariana Islands", code: "MP" },
+                { name: "Puerto Rico", code: "PR" },
+                { name: "U.S. Virgin Islands", code: "VI" }
+            ]
+        };
+
+        // Function to fetch legislators for a state and chamber
+        async function fetchLegislators(state, chamber) {
+            // In a real implementation, this would fetch data from an API
+            // For demo purposes, we'll return mock data
+            
+            if (chamber === "Senate") {
+                // Mock senators data
+                return [
+                    {
+                        name: `Senator John Doe`,
+                        state: state,
+                        party: "Democrat",
+                        firstElected: "2018",
+                        nextElection: "2024",
+                        phone: "(202) 224-1234",
+                        email: "john.doe@senate.gov",
+                        wikiLink: "https://en.wikipedia.org/wiki/John_Doe"
+                    },
+                    {
+                        name: `Senator Jane Smith`,
+                        state: state,
+                        party: "Republican",
+                        firstElected: "2020",
+                        nextElection: "2026",
+                        phone: "(202) 224-5678",
+                        email: "jane.smith@senate.gov",
+                        wikiLink: "https://en.wikipedia.org/wiki/Jane_Smith"
+                    }
+                ];
+            } else {
+                // Mock representatives data
+                return [
+                    {
+                        name: `Rep. Michael Johnson`,
+                        state: state,
+                        district: "1st",
+                        party: "Democrat",
+                        firstElected: "2020",
+                        nextElection: "2024",
+                        phone: "(202) 225-1234",
+                        email: "michael.johnson@house.gov",
+                        wikiLink: "https://en.wikipedia.org/wiki/Michael_Johnson"
+                    },
+                    {
+                        name: `Rep. Sarah Williams`,
+                        state: state,
+                        district: "2nd",
+                        party: "Republican",
+                        firstElected: "2018",
+                        nextElection: "2024",
+                        phone: "(202) 225-5678",
+                        email: "sarah.williams@house.gov",
+                        wikiLink: "https://en.wikipedia.org/wiki/Sarah_Williams"
+                    },
+                    {
+                        name: `Rep. Robert Brown`,
+                        state: state,
+                        district: "3rd",
+                        party: "Democrat",
+                        firstElected: "2022",
+                        nextElection: "2024",
+                        phone: "(202) 225-9012",
+                        email: "robert.brown@house.gov",
+                        wikiLink: "https://en.wikipedia.org/wiki/Robert_Brown"
+                    }
+                ];
+            }
+        }
+
+        // Function to create state buttons
+        function createStateButtons() {
+            const statesContainer = document.getElementById('statesContainer');
+            statesContainer.innerHTML = ''; // Clear loading message
+            
+            legislatorsData.states.sort((a, b) => a.name.localeCompare(b.name)).forEach(state => {
+                const stateButton = document.createElement('div');
+                stateButton.className = 'state-button';
+                stateButton.textContent = state.name;
+                stateButton.onclick = () => toggleDropdown(state.name);
+                
+                const dropdownContent = document.createElement('div');
+                dropdownContent.className = 'dropdown-content';
+                dropdownContent.id = `dropdown-${state.name.replace(/\s+/g, '-')}`;
+                
+                const senateChamber = document.createElement('div');
+                senateChamber.className = 'chamber-option';
+                senateChamber.textContent = 'Senate';
+                senateChamber.onclick = (e) => {
+                    e.stopPropagation();
+                    loadLegislators(state.name, 'Senate');
+                };
+                
+                const houseChamber = document.createElement('div');
+                houseChamber.className = 'chamber-option';
+                houseChamber.textContent = 'Congress';
+                houseChamber.onclick = (e) => {
+                    e.stopPropagation();
+                    loadLegislators(state.name, 'House');
+                };
+                
+                dropdownContent.appendChild(senateChamber);
+                dropdownContent.appendChild(houseChamber);
+                
+                // Create container for senators list
+                const senatorsList = document.createElement('ul');
+                senatorsList.className = 'legislators-list';
+                senatorsList.id = `senators-${state.name.replace(/\s+/g, '-')}`;
+                
+                // Create container for representatives list
+                const repsList = document.createElement('ul');
+                repsList.className = 'legislators-list';
+                repsList.id = `representatives-${state.name.replace(/\s+/g, '-')}`;
+                
+                dropdownContent.appendChild(senatorsList);
+                dropdownContent.appendChild(repsList);
+                
+                stateButton.appendChild(dropdownContent);
+                statesContainer.appendChild(stateButton);
+            });
+        }
+
+        // Function to toggle dropdown
+        function toggleDropdown(stateName) {
+            const dropdownId = `dropdown-${stateName.replace(/\s+/g, '-')}`;
+            const dropdown = document.getElementById(dropdownId);
+            
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-content').forEach(el => {
+                if (el.id !== dropdownId && el.classList.contains('active')) {
+                    el.classList.remove('active');
+                }
+            });
+            
+            // Toggle the clicked dropdown
+            dropdown.classList.toggle('active');
+        }
+
+        // Function to load legislators for a state and chamber
+        async function loadLegislators(stateName, chamber) {
+            const stateFormatted = stateName.replace(/\s+/g, '-');
+            const listId = chamber === 'Senate' ? 
+                `senators-${stateFormatted}` : 
+                `representatives-${stateFormatted}`;
+            
+            const list = document.getElementById(listId);
+            const otherListId = chamber === 'Senate' ? 
+                `representatives-${stateFormatted}` : 
+                `senators-${stateFormatted}`;
+            const otherList = document.getElementById(otherListId);
+            
+            // Hide the other list
+            otherList.classList.remove('active');
+            
+            // Clear and show loading in the current list
+            list.innerHTML = '<li class="loading">Loading legislators...</li>';
+            list.classList.add('active');
+            
+            try {
+                const legislators = await fetchLegislators(stateName, chamber);
+                list.innerHTML = ''; // Clear loading
+                
+                legislators.forEach(legislator => {
+                    const item = document.createElement('li');
+                    item.className = 'legislator-item';
+                    item.textContent = legislator.name;
+                    
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        displayLegislatorInfo(legislator, chamber, list);
+                    };
+                    
+                    list.appendChild(item);
+                });
+            } catch (error) {
+                list.innerHTML = '<li class="loading">Error loading legislators. Please try again.</li>';
+                console.error('Error loading legislators:', error);
+            }
+        }
+
+        // Function to display legislator information
+        function displayLegislatorInfo(legislator, chamber, parentList) {
+            // Remove any existing info boxes
+            const existingInfo = parentList.querySelector('.legislator-info');
+            if (existingInfo) {
+                existingInfo.remove();
+            }
+            
+            // Create info box
+            const infoBox = document.createElement('div');
+            infoBox.className = 'legislator-info';
+            
+            let infoContent = '';
+            
+            if (chamber === 'Senate') {
+                infoContent = `
+                    <div class="info-row"><span class="info-title">State:</span> ${legislator.state}</div>
+                    <div class="info-row"><span class="info-title">Party:</span> ${legislator.party}</div>
+                    <div class="info-row"><span class="info-title">First Elected:</span> ${legislator.firstElected}</div>
+                    <div class="info-row"><span class="info-title">Next Election:</span> ${legislator.nextElection}</div>
+                    <div class="info-row"><span class="info-title">Phone:</span> ${legislator.phone}</div>
+                    <div class="info-row"><span class="info-title">Email:</span> ${legislator.email}</div>
+                    <div class="info-row"><span class="info-title">Wikipedia:</span> 
+                        <a href="${legislator.wikiLink}" class="wiki-link" target="_blank">View profile</a>
+                    </div>
+                `;
+            } else {
+                infoContent = `
+                    <div class="info-row"><span class="info-title">State:</span> ${legislator.state}</div>
+                    <div class="info-row"><span class="info-title">District:</span> ${legislator.district}</div>
+                    <div class="info-row"><span class="info-title">Party:</span> ${legislator.party}</div>
+                    <div class="info-row"><span class="info-title">First Elected:</span> ${legislator.firstElected}</div>
+                    <div class="info-row"><span class="info-title">Next Election:</span> ${legislator.nextElection}</div>
+                    <div class="info-row"><span class="info-title">Phone:</span> ${legislator.phone}</div>
+                    <div class="info-row"><span class="info-title">Email:</span> ${legislator.email}</div>
+                    <div class="info-row"><span class="info-title">Wikipedia:</span> 
+                        <a href="${legislator.wikiLink}" class="wiki-link" target="_blank">View profile</a>
+                    </div>
+                `;
+            }
+            
+            infoBox.innerHTML = infoContent;
+            parentList.appendChild(infoBox);
+            infoBox.classList.add('active');
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            createStateButtons();
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.state-button')) {
+                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
